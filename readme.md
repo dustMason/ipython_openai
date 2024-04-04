@@ -3,6 +3,8 @@
 A quick toy implementation of a random idea: what if `ipython` had a magic function that sent the current session to
 gpt-4 along with a prompt, and automatically evaluated the result in the current session?
 
+Disclaimer: this is terribly unsafe and should not be used with any sensitive data.
+
 ```
 Python 3.9.14 (main, Oct 19 2022, 22:42:39)
 Type 'copyright', 'credits' or 'license' for more information
