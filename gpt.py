@@ -12,20 +12,25 @@ from prompt_toolkit.shortcuts import confirm
 @magics_class
 class GPT(Magics):
 
-    def _sample(self, line, system_message) -> str:
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self._samples: dict[int, str] = {}
+
+    def _sample(self, line, system_message):
         history = self._history_lines()
         client = openai.OpenAI()
         response = client.chat.completions.create(
             model="gpt-4-turbo-preview",
             messages=[
                 system_message,
-                {"role": "user", "content": history},
+                {"role": "user", "content": '\n'.join(history)},
                 {"role": "user", "content": line},
             ],
             max_tokens=2000,
             stream=True,
         )
         current_line = ""
+        full_output = ""
         for chunk in response:
             if chunk.choices:
                 c = chunk.choices[0].delta.content
@@ -33,21 +38,27 @@ class GPT(Magics):
                     current_line += c
                     if "\n" in current_line:
                         yield current_line
+                        full_output += current_line
                         current_line = ""
         if current_line:
+            full_output += current_line
             yield current_line
+        entries = len(list(self.shell.history_manager.get_range()))
+        self._samples[entries] = full_output
 
-    def _history_lines(self):
+    def _history_lines(self) -> list[str]:
         history = self.shell.history_manager.get_range(output=True)
         history_lines = []
         for session, line_number, input_output in history:
             inp, out = input_output
             history_lines.append(f"In [{line_number}]: {inp}")
-            if out is not None:
+            if out and not out.isspace():
                 history_lines.append(f"Out[{line_number}]: {str(out)}\n")
+            elif line_number in self._samples:
+                history_lines.append(f"Out[{line_number}]: {self._samples[line_number]}\n")
             else:
                 history_lines.append("\n")
-        return '\n'.join(history_lines)
+        return history_lines
 
     @line_magic
     def ask(self, line):
