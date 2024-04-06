@@ -16,11 +16,16 @@ to your ipython config.
 c.InteractiveShellApp.extensions = ['ipython_openai']
 ```
 
+## Configuration
+
+Your OpenAI API key should be available in the `OPENAI_API_KEY` env var. You can configure the model used by adding an
+entry to your ipython config: `c.GPT.model_name = 'gpt-4-turbo-preview'`.
+
 ## Usage
 
 This extension adds two new "magic" functions
 
-### `gen`
+## `gen`
 
 ```
 In [1]: gen a 5 line greeter function with randomness
@@ -36,7 +41,7 @@ In [2]: greet()
 Hello, Bob!
 ```
 
-### `ask`
+## `ask`
 
 ```
 In [3]: ask what happened

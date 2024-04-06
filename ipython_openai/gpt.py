@@ -7,20 +7,22 @@ from pygments.lexers.python import PythonLexer
 from pygments import lex
 
 from prompt_toolkit.shortcuts import confirm
+from traitlets import Unicode
 
 
 @magics_class
 class GPT(Magics):
+    model_name = Unicode("gpt-4-turbo-preview", config=True, help="OpenAI model name")
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self._samples: dict[int, str] = {}
 
     def _sample(self, line, system_message):
         history = self._history_lines()
         client = openai.OpenAI()
         response = client.chat.completions.create(
-            model="gpt-4-turbo-preview",
+            model=self.model_name,
             messages=[
                 system_message,
                 {"role": "user", "content": '\n'.join(history)},
