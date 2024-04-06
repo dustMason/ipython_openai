@@ -23,7 +23,9 @@ entry to your ipython config: `c.GPT.model_name = 'gpt-4-turbo-preview'`.
 
 ## Usage
 
-This extension adds two new "magic" functions
+This extension adds two new "magic" functions documented below. Each one captures the current history of the ipython
+session and sends it to the OpenAI API along with the prompt given after the command. The result is streamed back to the
+session. Each invocation of the magic functions can also see the output from previous ones.
 
 ## `gen`
 
