@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="ipython_openai",
-    version="0.0.4",
+    version="0.0.5",
     author="Jordan Sitkin",
     author_email="jordan@fiftyfootfoghorn.com",
     description="An IPython extension for interacting with OpenAI's models",

@@ -1,4 +1,7 @@
+import traceback
+
 import openai
+from IPython import get_ipython
 from IPython.core.magic import (Magics, magics_class, line_magic)
 from prompt_toolkit import print_formatted_text
 from prompt_toolkit.formatted_text import PygmentsTokens
@@ -17,6 +20,15 @@ class GPT(Magics):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._samples: dict[int, str] = {}
+        self._exceptions: dict[int, tuple] = {}
+        self.old_hook = self.shell.excepthook
+        ip = get_ipython()
+        ip.set_custom_exc((BaseException,), self.custom_exc)
+
+    def custom_exc(self, shell, etype, evalue, tb, tb_offset=None):
+        entries = len(list(self.shell.history_manager.get_range()))
+        self._exceptions[entries] = (etype, evalue, tb)
+        self.old_hook(etype, evalue, tb)
 
     def _sample(self, line, system_message):
         history = self._history_lines()
@@ -58,6 +70,9 @@ class GPT(Magics):
                 history_lines.append(f"Out[{line_number}]: {str(out)}\n")
             elif line_number in self._samples:
                 history_lines.append(f"Out[{line_number}]: {self._samples[line_number]}\n")
+            elif line_number in self._exceptions:
+                line = traceback.format_exception(*self._exceptions[line_number])
+                history_lines.append("".join(line))
             else:
                 history_lines.append("\n")
         return history_lines
